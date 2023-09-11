@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      style="
+        background: #f00;
+        width: 300px;
+        height: 300px;
+        position: relative;
+        top: 200px;
+        left: 200px;
+        transform: matrix(1, 0, 0, 1, 0, 0);
+      "
+      id="big"
+    >
+      <svg
+        width="300"
+        height="300"
+        viewBox="0 0 300 300"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <g
+          style="transform: matrix(1, 0, 0, 1, 40, 40); display: block"
+          id="move"
+        >
+          <rect
+            x="10"
+            y="10"
+            width="50"
+            height="50"
+            style="fill: #0f0; stroke: blue"
+          />
+        </g>
+        <g
+          style="transform: matrix(1, 0, 0, 1, 200, 200); display: block"
+          id="move2"
+        >
+          <rect
+            x="10"
+            y="10"
+            width="50"
+            height="50"
+            style="fill: #0f0; stroke: blue"
+          />
+        </g>
+      </svg>
+    </div>
+    <div
+      style="
+        background: #666;
+        width: 100%;
+        height: 50px;
+        position: fixed;
+        bottom: 0;
+      "
+    >
+      操作区：
+      <button style="width: 50px" onclick="bigger()">+</button>
+      <button style="width: 50px" onclick="smaller()">-</button>
+      <button style="width: 50px" onclick="fixed()">还原</button>
+    </div>
+    <script>
+      var bigElem = document.getElementById("big")
+      var [biga, bigb, bigc, bigd, bige, bigf] = bigElem.style.transform
+        .split("(")[1]
+        .split(")")[0]
+        .replace(/\s*/g, "")
+        .split(",")
+      var zoom = 1
+      var dragging //是否激活拖拽状态
+
+      //监听鼠标按下事件
+      document.addEventListener("mousedown", function (e) {
+        var moveElem = findG(e.target)
+        var moveBigElem = findBig(e.target)
+        var tLeft, tTop //鼠标按下时相对于选中元素的位移
+        var thisE, thisF
+        if (moveElem) {
+          console.log("moveElem", moveElem)
+          var [movea, moveb, movec, moved, movee, movef] =
+            moveElem.style.transform
+              .split("(")[1]
+              .split(")")[0]
+              .replace(/\s*/g, "")
+              .split(",")
+
+          var shang = (zuo = 0)
+          var xia = (you = 20)
+          dragging = true //激活拖拽状态
+          var moveElemRect = moveElem.getBoundingClientRect()
+          tLeft = e.clientX //鼠标按下时和选中元素的坐标偏移:x坐标
+          tTop = e.clientY //鼠标按下时和选中元素的坐标偏移:y坐标
+          thisE = +movee
+          thisF = +movef
+
+          function move(e) {
+            if (dragging) {
+              var moveX = e.clientX - tLeft,
+                moveY = e.clientY - tTop
+              movee = moveX / zoom + thisE
+              movef = moveY / zoom + thisF
+              if (movee <= 0 + zuo) {
+                movee = 0 + zuo
+              } else if (
+                movee >=
+                bigElem.style.width.replace(/[^0-9.]/gi, "") -
+                  moveElem.getBBox().width -
+                  you
+              ) {
+                movee =
+                  bigElem.style.width.replace(/[^0-9.]/gi, "") -
+                  moveElem.getBBox().width -
+                  you
+              }
+              if (movef <= 0 + shang) {
+                movef = 0 + shang
+              } else if (
+                movef >=
+                bigElem.style.height.replace(/[^0-9.]/gi, "") -
+                  moveElem.getBBox().height -
+                  xia
+              ) {
+                movef =
+                  bigElem.style.height.replace(/[^0-9.]/gi, "") -
+                  moveElem.getBBox().height -
+                  xia
+              }
+              moveElem.style.transform = `matrix(${movea},${moveb},${movec},${moved},${movee},${movef})`
+            }
+          }
+          //监听鼠标移动事件
+          document.addEventListener("mousemove", move)
+
+          //监听鼠标放开事件
+          document.addEventListener("mouseup", function (e) {
+            dragging = false
+            document.removeEventListener("mousemove", move)
+          })
+        } else if (moveBigElem) {
+          console.log("moveBigElem", moveBigElem)
+
+          dragging = true //激活拖拽状态
+          var moveElemRect = bigElem.getBoundingClientRect()
+          tLeft = e.clientX //鼠标按下时和选中元素的坐标偏移:x坐标
+          tTop = e.clientY //鼠标按下时和选中元素的坐标偏移:y坐标
+          thisE = +bige
+          thisF = +bigf
+
+          function move(e) {
+            if (dragging) {
+              var bigX = e.clientX - tLeft,
+                bigY = e.clientY - tTop
+              bige = bigX + thisE
+              bigf = bigY + thisF
+              bigElem.style.transform = `matrix(${biga},${bigb},${bigc},${bigd},${bige},${bigf})`
+            }
+          }
+          //监听鼠标移动事件
+          document.addEventListener("mousemove", move)
+
+          //监听鼠标放开事件
+          document.addEventListener("mouseup", function (e) {
+            dragging = false
+            document.removeEventListener("mousemove", move)
+          })
+        }
+      })
+
+      var findG = (dom) => {
+        if (dom) {
+          if (dom.parentNode == null) {
+            return undefined
+          } else {
+            if (dom.parentNode.tagName == "g") {
+              return dom.parentNode
+            } else {
+              findG(dom.parentNode) //dom.parentNode作为子元素向上查找它的父元素
+            }
+          }
+        }
+      }
+      var findBig = (dom) => {
+        if (dom) {
+          if (dom.parentNode == null) {
+            return undefined
+          } else {
+            if (dom.parentNode.id == "big") {
+              return dom.parentNode
+            } else {
+              findBig(dom.parentNode) //dom.parentNode作为子元素向上查找它的父元素
+            }
+          }
+        }
+      }
+      var bigger = () => {
+        biga = biga * 1.2
+        bigd = bigd * 1.2
+        zoom = zoom * 1.2
+        bigElem.style.transform = `matrix(${biga},${bigb},${bigc},${bigd},${bige},${bigf})`
+      }
+      var smaller = () => {
+        biga = biga / 1.2
+        bigd = bigd / 1.2
+        zoom = zoom / 1.2
+        bigElem.style.transform = `matrix(${biga},${bigb},${bigc},${bigd},${bige},${bigf})`
+      }
+      var fixed = () => {
+        biga = 1
+        bigd = 1
+        bige = 0
+        bigf = 0
+        zoom = 1
+        bigElem.style.transform = `matrix(${biga},${bigb},${bigc},${bigd},${bige},${bigf})`
+      }
+    </script>
+  </body>
+</html>
