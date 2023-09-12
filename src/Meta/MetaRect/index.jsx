@@ -7,5 +7,5 @@ export default function MetaRect(props) {
     coordidate: { x, y },
   } = metaAttrs
 
-  return <rect {...metaProps} {...size} x={x} y={y}></rect>
+  return <rect {...metaProps} {...size}></rect>
 }

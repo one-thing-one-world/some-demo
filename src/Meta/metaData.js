@@ -23,6 +23,10 @@ export const metaData = [
         width: 200,
         height: 200,
       },
+      move: {
+        x: 0,
+        y: 0,
+      },
     },
   },
   {
@@ -35,12 +39,16 @@ export const metaData = [
     },
     metaAttrs: {
       coordidate: {
-        x: 100,
-        y: 100,
+        x: 0,
+        y: 0,
       },
       size: {
         width: 200,
         height: 200,
+      },
+      move: {
+        x: 0,
+        y: 0,
       },
     },
   },
@@ -53,12 +61,16 @@ export const metaData = [
     },
     metaAttrs: {
       coordidate: {
-        x: 200,
-        y: 100,
+        x: 0,
+        y: 0,
       },
       size: {
         width: 200,
         height: 200,
+      },
+      move: {
+        x: 0,
+        y: 0,
       },
     },
   },

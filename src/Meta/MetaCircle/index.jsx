@@ -7,5 +7,5 @@ export default function MetaCircle(props) {
     coordidate: { x, y },
   } = metaAttrs
 
-  return <circle {...metaProps} {...size} cx={x} cy={y}></circle>
+  return <circle {...metaProps} {...size}></circle>
 }
