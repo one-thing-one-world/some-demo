@@ -1,31 +1,18 @@
 import logo from "./logo.svg"
 import "./App.css"
 import { useState, useEffect } from "react"
-import { metaData } from "./Meta/metaData"
+import { metaData, eightPoints } from "./Meta/metaData"
 import { findParentByClass } from "./utiles/index.jsx"
-
 function App() {
   const [initPositionData, setinitPositionData] = useState({
     type: undefined,
-    x: 0,
-    y: 0,
-    cx: 0,
-    cy: 0,
     startPageX: 0,
     startPageY: 0,
-    move: {
-      x: 0,
-      y: 0,
-    },
   })
-  const [trans, setTrans] = useState(undefined)
   const [metaDataList, setMetaDataList] = useState(metaData)
 
-  const getActiveSpritType = (e) => {
-    const spriteDom = findParentByClass(e.target, "gTagContainer")
-    const domType = spriteDom.getAttribute("data-sprite-id")
-    return domType
-  }
+  const [activeGraphObj, setActiveGraphObj] = useState({})
+
   const fnMove = (e) => {
     const { pageX, pageY } = e
     const { startPageX, startPageY } = initPositionData
@@ -37,18 +24,25 @@ function App() {
         }
       }
     })
-    console.log(startPageX, startPageY, "startPageY", metaDataList)
     setMetaDataList([...metaDataList])
   }
 
   const fnDwon = (e) => {
-    // 获取rect
-
     const spriteDom = findParentByClass(e.target, "gTagContainer")
     if (!spriteDom) {
       return
     }
     const domType = spriteDom.getAttribute("data-sprite-id")
+    const activeObj = metaDataList.find((item) => {
+      return item.type === domType
+    })
+    console.log(`output->activeObj`, activeObj)
+    const selectRectBounding = spriteDom.getBoundingClientRect()
+    console.log(selectRectBounding, "selectRectBounding")
+    activeObj.x = selectRectBounding.x
+    activeObj.y = selectRectBounding.y
+
+    setActiveGraphObj(activeObj)
     const { pageX: startPageX, pageY: startPageY } = e
     initPositionData.startPageX = startPageX
     initPositionData.startPageY = startPageY
@@ -58,25 +52,7 @@ function App() {
     document.addEventListener("pointerup", fnUp, false)
   }
 
-  const getActiveSpriteList = () => {
-    const activeMetaLists = metaDataList.filter((item) => {
-      return item.type === initPositionData.type
-    })
-    console.log(
-      metaDataList,
-      "metaDataList",
-      activeMetaLists,
-      "initPositionData.type",
-      initPositionData.type
-    )
-    return activeMetaLists
-  }
   const fnUp = () => {
-    console.log("up")
-    // initPositionData.cx = initPositionData.move.x
-    // initPositionData.cy = initPositionData.move.y
-    console.log(`output->initPositionData`, initPositionData)
-    // setinitPositionData({ ...initPositionData })
     metaDataList.forEach((item) => {
       if (item.type === initPositionData.type) {
         item.metaAttrs.coordidate = {
@@ -85,9 +61,7 @@ function App() {
         }
       }
     })
-    // setMetaDataList([...metaDataList])
 
-    console.log(metaDataList, "metaDataList")
     document.removeEventListener("pointermove", fnMove, false)
     document.removeEventListener("pointedown", fnDwon, false)
     document.removeEventListener("pointerup", fnUp, false)
@@ -96,10 +70,51 @@ function App() {
     document.addEventListener("pointerdown", fnDwon, false)
   }, [])
 
+  const getCursor = (angle) => {
+    let a = angle
+    if (a < 0) {
+      a += 360
+    }
+    if (a >= 360) {
+      a -= 360
+    }
+    if (a >= 338 || a < 23 || (a > 157 && a <= 202)) {
+      return "ew-resize"
+    } else if ((a >= 23 && a < 68) || (a > 202 && a <= 247)) {
+      return "nwse-resize"
+    } else if ((a >= 68 && a < 113) || (a > 247 && a <= 292)) {
+      return "ns-resize"
+    } else {
+      return "nesw-resize"
+    }
+  }
+
+  const resizeMouseDown = (e, pos) => {
+    document.addEventListener("pointermove", resize_mouseMove, false)
+    document.addEventListener("pointerup", resize_mouseUp, false)
+  }
+
+  const resize_mouseMove = (e) => {}
+
+  const resize_mouseUp = () => {
+    document.removeEventListener("pointermove", resize_mouseMove, false)
+    document.removeEventListener("pointerup", resize_mouseUp, false)
+  }
   return (
     <div className="App">
-      <div>distance:{initPositionData.move.x}</div>
-      <svg width={400} height={400} id="svgId" fill="blue">
+      <svg width={900} height={900} id="svgId" fill="blue">
+        <rect
+          x={-activeGraphObj?.metaProps?.r}
+          y={-activeGraphObj?.metaProps?.r}
+          width={activeGraphObj?.metaAttrs?.size.width}
+          height={activeGraphObj?.metaAttrs?.size.height}
+          transform={`translate(${activeGraphObj?.metaAttrs?.move.x},${activeGraphObj?.metaAttrs?.move.y})`}
+          stroke="#0067ed"
+          strokeWidth={4}
+          fill="none"
+          className="active-meta-rect-line"
+        ></rect>
+
         {metaDataList.map((metaItem) => {
           const {
             MetaComponent,
@@ -126,44 +141,41 @@ function App() {
             </g>
           )
         })}
-        {/* <rect
-          width={200}
-          height={200}
-          stroke="red"
-          strke-width="4"
-          fill="yellow"
-          // onClick={getboundingclientRectDataClick}
-        ></rect>
 
-        <g className="sprite-container" data-sprite-id="circle">
-          <circle
-            id="circle"
-            // onMouseMove={moveDrag}
-            // onMouseDown={startDrag}
-            // onMouseUp={endDrag}
-            // cx={initPositionData.x}
-            // cy={initPositionData.y}
-            cx={200}
-            cy={200}
-            r="50"
-          ></circle>
-        </g>
-        <g
-          transform={`translate(${initPositionData.move.x},${initPositionData.move.y})`}
-        >
-          <rect
-            id="rect"
-            x="0"
-            y="0"
-            width={100}
-            height={100}
-            stroke="#999"
-            stroke-width="2"
-          ></rect>
-        </g> */}
-        {/* <text fontSize={18} fill="red" x={200} y={200} textAnchor="middle">
-          this is text
-        </text> */}
+        {eightPoints.map((item) => {
+          console.log(`output->222`, activeGraphObj)
+          const { size, coordidate } = activeGraphObj?.metaAttrs || {}
+          const { r = 0 } = activeGraphObj?.metaProps || {}
+          console.log(r, "circleR")
+          return (
+            <rect
+              width={8}
+              height={8}
+              x={
+                size?.width +
+                (size?.width / 100) * item.position.x -
+                4 -
+                size?.width -
+                r
+              }
+              y={
+                size?.height +
+                (size?.height / 100) * item.position.y -
+                4 -
+                size?.height -
+                r
+              }
+              style={{
+                cursor: getCursor(item.angle),
+              }}
+              stroke="#0067ed"
+              strokeWidth={2}
+              transform={`translate(${activeGraphObj?.metaAttrs?.move.x},${activeGraphObj?.metaAttrs?.move.y})`}
+              fill="white"
+              onMouseDown={(event) => resizeMouseDown(event, item.name)}
+            ></rect>
+          )
+        })}
       </svg>
     </div>
   )
