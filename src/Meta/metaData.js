@@ -7,8 +7,8 @@ export const metaData = [
     type: "line",
     MetaComponent: MetaLine,
     metaProps: {
-      x1: 0,
-      y1: 0,
+      x1: 200,
+      y1: 200,
       x2: 100,
       y2: 100,
       stroke: "red",
@@ -28,13 +28,17 @@ export const metaData = [
         x: 0,
         y: 0,
       },
+      position: {
+        x: 100,
+        y: 100,
+      },
     },
   },
   {
     type: "rect",
     MetaComponent: MetaRect,
     metaProps: {
-      stroke: "red",
+      stroke: "blue",
       strokeWidth: "2",
       fill: "yellow",
     },
@@ -51,12 +55,18 @@ export const metaData = [
         x: 0,
         y: 0,
       },
+      position: {
+        x: 200,
+        y: 200,
+      },
     },
   },
   {
     type: "circle",
     MetaComponent: MetaCircle,
     metaProps: {
+      cx: 300,
+      cy: 300,
       r: 50,
       fill: "red",
     },
@@ -73,6 +83,10 @@ export const metaData = [
       move: {
         x: 0,
         y: 0,
+      },
+      position: {
+        x: 300,
+        y: 300,
       },
     },
   },

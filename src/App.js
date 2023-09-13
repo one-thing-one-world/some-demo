@@ -1,8 +1,9 @@
 import "./App.css"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { metaData } from "./Meta/metaData"
 import { findParentByClass } from "./utiles/index.jsx"
 import ResizeMeta from "./components/ResizeMeta"
+import RotateMeta from "./components/RotateMeta/index"
 function App() {
   const [initPositionData, setinitPositionData] = useState({
     type: undefined,
@@ -70,18 +71,20 @@ function App() {
     document.addEventListener("pointerdown", fnDwon, false)
   }, [])
 
-  useEffect(() => {
-    console.log(activeGraphObj, "activeGraphObj")
-  }, [activeGraphObj])
-
   return (
     <div className="App">
       <svg width={900} height={900} id="svgId" fill="blue">
         <rect
-          x={-activeGraphObj?.metaProps?.r || 0}
-          y={-activeGraphObj?.metaProps?.r || 0}
-          width={activeGraphObj?.metaAttrs?.size?.width || 0}
-          height={activeGraphObj?.metaAttrs?.size?.height || 0}
+          x={
+            activeGraphObj?.metaAttrs?.position?.x -
+            (activeGraphObj?.metaProps?.r || 0)
+          }
+          y={
+            activeGraphObj?.metaAttrs?.position?.y -
+            (activeGraphObj?.metaProps?.r || 0)
+          }
+          width={activeGraphObj?.metaAttrs?.size?.width}
+          height={activeGraphObj?.metaAttrs?.size?.height}
           transform={`translate(${activeGraphObj?.metaAttrs?.move?.x || 0},${
             activeGraphObj?.metaAttrs?.move?.y || 0
           })`}
@@ -103,6 +106,7 @@ function App() {
               data-sprite-id={metaItem.type}
               key={metaItem.type}
               transform={`translate(${move?.x || 0},${move?.y || 0})`}
+              style={{ cursor: "move" }}
             >
               <MetaComponent {...metaItem}></MetaComponent>
               <text
@@ -123,6 +127,8 @@ function App() {
           setActiveGraphObj={setActiveGraphObj}
           setMetaDataList={setMetaDataList}
         ></ResizeMeta>
+
+        {/* <RotateMeta activeGraphObj={activeGraphObj}></RotateMeta> */}
       </svg>
     </div>
   )

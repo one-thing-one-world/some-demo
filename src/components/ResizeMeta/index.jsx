@@ -55,22 +55,32 @@ export default function ResizeMeta(props) {
     metaDataList.forEach((item) => {
       if (item.type === activeGraphObj.type) {
         if (initData.position === "right-bottom") {
-          const { coordidate } = item.metaAttrs
-          const dx = pageX - coordidate?.x
-          const dy = pageY - coordidate?.y
-          const width = Math.abs(dx)
-          const height = Math.abs(dy)
+          const dx = pageX - initData.startPageX
+          const dy = pageY - initData.startPageY
+          const width = initData.coordidate.x + dx
+          const height = initData.coordidate.y + dy
           item.metaAttrs.size = {
             width: width,
             height: height,
           }
+          item.metaAttrs.move = {
+            x: item.metaAttrs.coordidate.x,
+            y: item.metaAttrs.coordidate.y,
+          }
         }
 
         if (initData.position === "right") {
-          const { coordidate } = item.metaAttrs
-          const dx = pageX - coordidate?.x
-          const width = Math.abs(dx)
-          item.metaAttrs.size.width = width
+          const dx = pageX - initData.startPageX
+          const width = initData.coordidate.x + dx
+          const height = initData.coordidate.y
+          item.metaAttrs.size = {
+            width: width,
+            height: height,
+          }
+          item.metaAttrs.move = {
+            x: item.metaAttrs.coordidate.x,
+            y: item.metaAttrs.coordidate.y,
+          }
         }
 
         if (initData.position === "top-right") {
@@ -187,11 +197,11 @@ export default function ResizeMeta(props) {
   }
 
   return (
-    <>
+    <svg>
       {eightPoints.map((item) => {
         console.log(`output->222`, activeGraphObj)
-        const { size, coordidate } = activeGraphObj?.metaAttrs || {}
-        const { r = 0 } = activeGraphObj?.metaProps || {}
+        const { size, coordidate, position } = activeGraphObj?.metaAttrs || {}
+        const { r = 0, cx = 0, cr = 0 } = activeGraphObj?.metaProps || {}
         return (
           <rect
             width={8}
@@ -202,14 +212,16 @@ export default function ResizeMeta(props) {
                 (size?.width / 100) * item.position.x -
                 4 -
                 size?.width -
-                r || 0
+                r +
+                position?.x || 0
             }
             y={
               size?.height +
                 (size?.height / 100) * item.position.y -
                 4 -
                 size?.height -
-                r || 0
+                r +
+                position?.y || 0
             }
             style={{
               cursor: getCursor(item.angle),
@@ -224,6 +236,6 @@ export default function ResizeMeta(props) {
           ></rect>
         )
       })}
-    </>
+    </svg>
   )
 }
