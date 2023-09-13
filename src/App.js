@@ -1,8 +1,8 @@
-import logo from "./logo.svg"
 import "./App.css"
 import { useState, useEffect } from "react"
-import { metaData, eightPoints } from "./Meta/metaData"
+import { metaData } from "./Meta/metaData"
 import { findParentByClass } from "./utiles/index.jsx"
+import ResizeMeta from "./components/ResizeMeta"
 function App() {
   const [initPositionData, setinitPositionData] = useState({
     type: undefined,
@@ -42,7 +42,7 @@ function App() {
     activeObj.x = selectRectBounding.x
     activeObj.y = selectRectBounding.y
 
-    setActiveGraphObj(activeObj)
+    setActiveGraphObj({ ...activeObj })
     const { pageX: startPageX, pageY: startPageY } = e
     initPositionData.startPageX = startPageX
     initPositionData.startPageY = startPageY
@@ -70,45 +70,21 @@ function App() {
     document.addEventListener("pointerdown", fnDwon, false)
   }, [])
 
-  const getCursor = (angle) => {
-    let a = angle
-    if (a < 0) {
-      a += 360
-    }
-    if (a >= 360) {
-      a -= 360
-    }
-    if (a >= 338 || a < 23 || (a > 157 && a <= 202)) {
-      return "ew-resize"
-    } else if ((a >= 23 && a < 68) || (a > 202 && a <= 247)) {
-      return "nwse-resize"
-    } else if ((a >= 68 && a < 113) || (a > 247 && a <= 292)) {
-      return "ns-resize"
-    } else {
-      return "nesw-resize"
-    }
-  }
+  useEffect(() => {
+    console.log(activeGraphObj, "activeGraphObj")
+  }, [activeGraphObj])
 
-  const resizeMouseDown = (e, pos) => {
-    document.addEventListener("pointermove", resize_mouseMove, false)
-    document.addEventListener("pointerup", resize_mouseUp, false)
-  }
-
-  const resize_mouseMove = (e) => {}
-
-  const resize_mouseUp = () => {
-    document.removeEventListener("pointermove", resize_mouseMove, false)
-    document.removeEventListener("pointerup", resize_mouseUp, false)
-  }
   return (
     <div className="App">
       <svg width={900} height={900} id="svgId" fill="blue">
         <rect
-          x={-activeGraphObj?.metaProps?.r}
-          y={-activeGraphObj?.metaProps?.r}
-          width={activeGraphObj?.metaAttrs?.size.width}
-          height={activeGraphObj?.metaAttrs?.size.height}
-          transform={`translate(${activeGraphObj?.metaAttrs?.move.x},${activeGraphObj?.metaAttrs?.move.y})`}
+          x={-activeGraphObj?.metaProps?.r || 0}
+          y={-activeGraphObj?.metaProps?.r || 0}
+          width={activeGraphObj?.metaAttrs?.size?.width || 0}
+          height={activeGraphObj?.metaAttrs?.size?.height || 0}
+          transform={`translate(${activeGraphObj?.metaAttrs?.move?.x || 0},${
+            activeGraphObj?.metaAttrs?.move?.y || 0
+          })`}
           stroke="#0067ed"
           strokeWidth={4}
           fill="none"
@@ -126,7 +102,7 @@ function App() {
               className="gTagContainer"
               data-sprite-id={metaItem.type}
               key={metaItem.type}
-              transform={`translate(${move.x},${move.y})`}
+              transform={`translate(${move?.x || 0},${move?.y || 0})`}
             >
               <MetaComponent {...metaItem}></MetaComponent>
               <text
@@ -136,46 +112,17 @@ function App() {
                 y={200}
                 textAnchor="middle"
               >
-                {move.x},{move.y}
+                {move?.x},{move?.y}
               </text>
             </g>
           )
         })}
-
-        {eightPoints.map((item) => {
-          console.log(`output->222`, activeGraphObj)
-          const { size, coordidate } = activeGraphObj?.metaAttrs || {}
-          const { r = 0 } = activeGraphObj?.metaProps || {}
-          console.log(r, "circleR")
-          return (
-            <rect
-              width={8}
-              height={8}
-              x={
-                size?.width +
-                (size?.width / 100) * item.position.x -
-                4 -
-                size?.width -
-                r
-              }
-              y={
-                size?.height +
-                (size?.height / 100) * item.position.y -
-                4 -
-                size?.height -
-                r
-              }
-              style={{
-                cursor: getCursor(item.angle),
-              }}
-              stroke="#0067ed"
-              strokeWidth={2}
-              transform={`translate(${activeGraphObj?.metaAttrs?.move.x},${activeGraphObj?.metaAttrs?.move.y})`}
-              fill="white"
-              onMouseDown={(event) => resizeMouseDown(event, item.name)}
-            ></rect>
-          )
-        })}
+        <ResizeMeta
+          metaDataList={metaDataList}
+          activeGraphObj={activeGraphObj}
+          setActiveGraphObj={setActiveGraphObj}
+          setMetaDataList={setMetaDataList}
+        ></ResizeMeta>
       </svg>
     </div>
   )

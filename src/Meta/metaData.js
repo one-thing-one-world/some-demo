@@ -23,6 +23,7 @@ export const metaData = [
         width: 100,
         height: 100,
       },
+
       move: {
         x: 0,
         y: 0,
@@ -68,6 +69,7 @@ export const metaData = [
         width: 100,
         height: 100,
       },
+
       move: {
         x: 0,
         y: 0,
